@@ -51,7 +51,9 @@ export default function Hero() {
                 <Mail className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="http://linkedin.com/in/rahman-zazai"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <Linkedin className="w-5 h-5" />

@@ -1,17 +1,11 @@
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import { Mail, Phone, MapPin, Linkedin } from "lucide-react";
-
-type ContactFormData = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
+import { useForm } from "react-hook-form";
 
 export default function Contact() {
   const {
@@ -19,11 +13,48 @@ export default function Contact() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<ContactFormData>();
-  const onSubmit = (data: ContactFormData) => {
-    console.log("Form submitted:", data);
-    alert("Thank you for your message! I'll get back to you soon.");
-    reset();
+  } = useForm<{
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }>();
+  const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (data: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch("https://formspree.io/f/xojlzqvl", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSuccess(true);
+        reset();
+        // hide success after a short time
+        setTimeout(() => setSuccess(false), 6000);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setSubmitError(
+          body.error || "Failed to send message. Please try again later.",
+        );
+      }
+    } catch (err) {
+      setSubmitError("Network error. Please try again.");
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -89,7 +120,9 @@ export default function Contact() {
                 </div>
 
                 <a
-                  href="#"
+                  href="http://linkedin.com/in/rahman-zazai"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group"
                 >
                   <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-700 transition-colors">
@@ -105,7 +138,6 @@ export default function Contact() {
               </div>
             </div>
           </div>
-
           <Card className="dark:bg-gray-800 dark:border-gray-700 order-1 lg:order-2">
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -113,9 +145,8 @@ export default function Contact() {
                   <Label htmlFor="name">Name *</Label>
                   <Input
                     id="name"
-                    placeholder="Your name"
                     {...register("name", { required: "Name is required" })}
-                    aria-invalid={errors.name ? "true" : "false"}
+                    placeholder="Your name"
                   />
                   {errors.name && (
                     <p className="text-sm text-red-600 dark:text-red-400">
@@ -123,12 +154,12 @@ export default function Contact() {
                     </p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="your.email@example.com"
                     {...register("email", {
                       required: "Email is required",
                       pattern: {
@@ -136,7 +167,7 @@ export default function Contact() {
                         message: "Invalid email address",
                       },
                     })}
-                    aria-invalid={errors.email ? "true" : "false"}
+                    placeholder="your.email@example.com"
                   />
                   {errors.email && (
                     <p className="text-sm text-red-600 dark:text-red-400">
@@ -144,15 +175,15 @@ export default function Contact() {
                     </p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject *</Label>
                   <Input
                     id="subject"
-                    placeholder="What would you like to discuss?"
                     {...register("subject", {
                       required: "Subject is required",
                     })}
-                    aria-invalid={errors.subject ? "true" : "false"}
+                    placeholder="What would you like to discuss?"
                   />
                   {errors.subject && (
                     <p className="text-sm text-red-600 dark:text-red-400">
@@ -160,12 +191,11 @@ export default function Contact() {
                     </p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="message">Message *</Label>
                   <Textarea
                     id="message"
-                    placeholder="Tell me more about your project or inquiry..."
-                    rows={5}
                     {...register("message", {
                       required: "Message is required",
                       minLength: {
@@ -173,16 +203,29 @@ export default function Contact() {
                         message: "Message must be at least 10 characters",
                       },
                     })}
-                    aria-invalid={errors.message ? "true" : "false"}
+                    placeholder="Tell me more about your project or inquiry..."
+                    rows={5}
                   />
                   {errors.message && (
                     <p className="text-sm text-red-600 dark:text-red-400">
                       {errors.message.message}
                     </p>
                   )}
+
+                  {success && (
+                    <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                      Thank you for your message! I'll get back to you soon.
+                    </p>
+                  )}
+                  {submitError && (
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                      {submitError}
+                    </p>
+                  )}
                 </div>
-                <Button type="submit" className="w-full">
-                  Send Message
+
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </CardContent>
