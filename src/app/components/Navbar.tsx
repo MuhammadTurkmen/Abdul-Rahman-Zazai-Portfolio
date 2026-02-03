@@ -36,29 +36,29 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   };
 
-  const NavLinks = () => (
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
     <>
       <button
         onClick={() => scrollToSection("about")}
-        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className={`transition-colors ${mobile ? "block w-full text-left p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
       >
         About
       </button>
       <button
         onClick={() => scrollToSection("experience")}
-        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className={`transition-colors ${mobile ? "block w-full text-left p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
       >
         Experience
       </button>
       <button
         onClick={() => scrollToSection("projects")}
-        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className={`transition-colors ${mobile ? "block w-full text-left p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
       >
         Projects
       </button>
       <button
         onClick={() => scrollToSection("contact")}
-        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className={`transition-colors ${mobile ? "block w-full text-left p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700" : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"}`}
       >
         Contact
       </button>
@@ -87,13 +87,17 @@ export default function Navbar() {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <SheetTitle>Navigation Menu</SheetTitle>
-                <SheetDescription>
-                  Navigate to different sections of the portfolio
+              <SheetContent
+                side="right"
+                className="w-full max-w-xs sm:max-w-sm p-6"
+              >
+                <SheetTitle className="mb-1">Navigation</SheetTitle>
+                <SheetDescription className="mb-4">
+                  Tap a section to navigate
                 </SheetDescription>
-                <nav className="flex flex-col gap-4 mt-8">
-                  <NavLinks />
+
+                <nav className="flex flex-col gap-2 mt-2">
+                  {NavLinks({ mobile: true })}
                 </nav>
               </SheetContent>
             </Sheet>
